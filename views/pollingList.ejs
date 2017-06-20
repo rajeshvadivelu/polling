@@ -1,0 +1,97 @@
+<div class="container">
+    <!--div class="alert alert-info"><h3 class="frontpage-banner"><%= i18n('login.supply_demand_header') %> </h3></div-->
+
+        <!--img src="/images/piab-logo.png" class="form-signup-heading" style="position:relative;left:30%;padding:10px;" height="120px" /-->
+        <div>
+	         <% if (req.session.flash && req.session.flash.error) { %>
+	             <div style="height:50px;"><span class="alert alert-warning" ><%=req.flash('error')%></span></div>
+	        <% } else if (req.session.flash && req.session.flash.success) { %>
+	            <div style="height:50px;"><span class="alert alert-success"><%=req.flash('success')%></span></div>
+	        <% } %> 
+    	</div>
+
+        <!--div class="form-group">
+		    <label for="sampletext">Search Text</label>
+		    <input type="text" class="form-control" name="searchText" id="searchtext" aria-describedby="searchtexthelp" placeholder="Model Number, Part of title, .. anything">
+		    <small id="searchtexthelp" class="form-text text-muted">Ex: iphone 7, surface pro 4, MP2H2LL/A</small>
+		  </div>
+        <button type="submit" class="btn btn-primary">Submit</button-->
+
+    <form class="form-signin" id="surveyForm" >
+
+    <div class="row">
+    <%if (results) {%>
+    	
+     	<% if (results.length == 0) { %>
+    		No Questions to show.
+    	<% } else { %>
+    		
+    		<% results.forEach(function(question,i) { %>
+    		<div class="col s6">
+	    		<div class="card teal lighten-4">
+		            <div class="card-content black-text">
+		              <!--span class="card-title">Card Title</span-->
+		              <div class="row">
+		              	<p><%=question.question%></p>
+		              </div>
+		              <div class="row" style="margin:0">	
+			              <div class="">
+			              	<div class="col s2 offset-s8">
+			              		<a href="#" onClick="javascript:updatelikes(<%=question.id%>, true)"><i class="small material-icons">thumb_up</i></a>
+			              		<span id="l<%=question.id%>"><%=question.likes%> </span>
+			              	</div>
+			              	<div class="col s2">	
+			              		<a href="#" onClick="javascript:updatelikes(<%=question.id%>, false)"><i class="small material-icons">thumb_down</i></a>
+			              		<span id="dl<%=question.id%>"><%=question.dislikes%> </span>
+			              	</div>	
+			              </div>
+		          		</div>
+		            </div>
+		            <div class="card-action">
+		            	<% question.options.forEach(function(option,j) { %>
+	                  		<input name="q<%=question.id%>" type="radio" id="o<%=option.id%>" value="<%=option.id%>"/>
+      						<label for="o<%=option.id%>" class="black-text"><%=option.name%></label>&nbsp;&nbsp;
+	                  	<%});%>
+	                  	<div class="right"><a class="waves-effect waves-light btn" style="margin-top:-5px;" onClick="javascript:submitSurvey(<%=question.id%>)">Submit</a></div>
+		            </div>
+	          	</div>
+	        </div>  	
+          	<% }); %>
+    	<% } %>
+    	
+    <% } %>
+	</div>
+
+	</form>
+
+</div> <!-- /container -->
+
+<script>
+function submitSurvey(qid) {
+	var oid = $('input[name=q' + qid + ']:checked', '#surveyForm').val();
+	if (oid == undefined) {
+		alert("Select an option to submit !");
+	} else {
+		console.log(oid);
+		$.post( "/survey/update", { qid: qid, oid: oid }, function (result){
+            console.log("Result : " + JSON.stringify(result));
+            if (result.updated) {
+            	alert("Thanks for participating. Your answer was accepted");
+            } else {
+            	alert("Oops. There is something wrong. Please try submitting after sometime.")
+            }
+        });
+	} 
+}
+
+function updatelikes(qid, like) {
+	$.post( "/survey/like", { qid: qid, like: like }, function (result){
+        console.log("like result : " + JSON.stringify(result));
+        if (like) {
+        	$("#l"+qid).text(result.likes);
+        } else {
+        	$("#dl"+qid).text(result.dislikes);
+        }
+    });
+}
+</script>
