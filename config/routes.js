@@ -43,7 +43,13 @@ module.exports.routes = {
   * for configuration options and examples.                                  *
   *                                                                          *
   ***************************************************************************/
+  'GET /iamtheadmin' : 'PolllistController.adminView',
+  'GET /iamnottheadmin' : 'PolllistController.nonAdminView',
   'POST /survey/update' : 'PollController.update',
-  'POST /survey/like' : 'PollController.updateLike'
+  'POST /survey/like' : 'PollController.updateLike',
+
+  'POST /question/add' : 'QuestionsController.add',
+  'POST /question/update' : 'QuestionsController.update',
+  'POST /question/delete' : 'QuestionsController.delete'
 
 };

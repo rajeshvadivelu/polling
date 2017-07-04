@@ -18,7 +18,7 @@
         <button type="submit" class="btn btn-primary">Submit</button-->
 
     <form class="form-signin" id="surveyForm" >
-
+    
     <div class="row">
     <%if (results) {%>
     	
@@ -27,16 +27,33 @@
     	<% } else { %>
     		
     		<% results.forEach(function(question,i) { %>
-    		<div class="col s6">
+    		<div class="col s12">
 	    		<div class="card teal lighten-4">
 		            <div class="card-content black-text">
 		              <!--span class="card-title">Card Title</span-->
-		              <div class="row">
-		              	<p><%=question.question%></p>
-		              </div>
+		              <% if (req.session.isAdmin) { %>
+		              	<div class="row">
+		              		<div class="col s10">
+			              		<p><%=question.question%></p>
+			              	</div>
+		              		<div class="col s1">
+			              		<a href="#" onClick="javascript:editQuestion(<%=question.id%>)"><i class="small material-icons">mode_edit</i></a>
+			              	</div>
+			              	<div class="col s1">
+			              		<a href="#" onClick="javascript:deleteQuestion(<%=question.id%>)"><i class="small material-icons">delete</i></a>
+			              	</div>
+		             	</div>
+		              <% } else { %>
+		              	<div class="row">
+		              		<p><%=question.question%></p>
+		              	</div>
+		              <% } %>	
 		              <div class="row" style="margin:0">	
 			              <div class="">
-			              	<div class="col s2 offset-s8">
+			              	<div class="col s2">
+			              		<span id="v<%=question.id%>">Votes : <%=question.votes%> </span>
+			              	</div>
+			              	<div class="col s2 offset-s6">
 			              		<a href="#" onClick="javascript:updatelikes(<%=question.id%>, true)"><i class="small material-icons">thumb_up</i></a>
 			              		<span id="l<%=question.id%>"><%=question.likes%> </span>
 			              	</div>
@@ -66,7 +83,78 @@
 
 </div> <!-- /container -->
 
+ <!-- Modal Structure -->
+  <div id="modal1" class="modal">
+    <div class="modal-content">
+      	<h5>Add / Edit Question</h5>
+	      <div class="row">
+	        <div class="input-field col s12">
+	          <input placeholder="Question here ... " id="question" type="text" class="validate">
+	          <!--label for="question">Question</label-->
+	        </div>
+	      </div>  
+	      <div class="chips-placeholder"></div>
+    </div>
+    <div class="modal-footer">
+      <!--a href="#!" onClick="javascript:addEditQuestion()" class="modal-action modal-close waves-effect waves-green btn-flat">Agree</a-->
+    </div>
+  </div>     
+
 <script>
+
+$('.chips-placeholder').material_chip({
+    placeholder: '+ Option',
+    secondaryPlaceholder: 'Add Options',
+  });
+
+function newQuestion() {
+	console.log("inside question");
+	$('.modal-footer').append('<a href="#!" onClick="javascript:addNewQuestion()" class="modal-action modal-close waves-effect waves-green btn-flat">Add</a>');
+	$('#modal1').modal('open');
+}
+
+function addNewQuestion() {
+	var question = $('#question').val();
+	var options = $('.chips-placeholder').material_chip('data');
+	$.post( "/question/add", { question: question, options: options }, function (result){
+        console.log("Result : " + JSON.stringify(result));
+        if (result.added) {
+        	alert("New Question was successfully added");
+        	window.location = "/";
+        } else {
+        	alert("Oops. There is something wrong. Please try submitting after sometime.")
+        }
+    });
+}
+
+function deleteQuestion(qid) {
+	if (confirm("Do you really want to delete the Question?")) {
+		$.post( "/question/delete", { qid: qid }, function (result){
+	        console.log("Result : " + JSON.stringify(result));
+	        if (result.deleted) {
+	        	alert("Question deleted sucessfully");
+	        	window.location = "/";
+	        } else {
+	        	alert("Oops. There is something wrong. Please try submitting after sometime.")
+	        }
+	    });
+	}
+}
+
+function edit1Question(qid) {
+	var question = $('#question').val();
+	var options = $('.chips-placeholder').material_chip('data');
+	$.post( "/question/update", { qid: qid, question: question, options: options }, function (result){
+        console.log("Result : " + JSON.stringify(result));
+        if (result.updated) {
+        	alert("Question updated sucessfully");
+        	window.location = "/";
+        } else {
+        	alert("Oops. There is something wrong. Please try submitting after sometime.")
+        }
+    });
+}
+
 function submitSurvey(qid) {
 	var oid = $('input[name=q' + qid + ']:checked', '#surveyForm').val();
 	if (oid == undefined) {
@@ -77,6 +165,7 @@ function submitSurvey(qid) {
             console.log("Result : " + JSON.stringify(result));
             if (result.updated) {
             	alert("Thanks for participating. Your answer was accepted");
+            	$("#v"+qid).text("Votes : " + result.votes);
             } else {
             	alert("Oops. There is something wrong. Please try submitting after sometime.")
             }

@@ -1,6 +1,7 @@
 Create table questions(
 id int(11) primary key auto_increment,
 question varchar(2000),
+votes int(11) default 0,
 likes int(11) default 0,
 dislikes int(11) default 0,
 createdAt datetime default now(),

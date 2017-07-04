@@ -43,16 +43,22 @@
     <nav>
       <div class="nav-wrapper">
         <div class="row">
-         <div class="col s11 offset-s1"><a href="#!" class="brand-logo">Logo</a></div>
+         <div class="col s9 offset-s1"><a href="#!" class="brand-logo">Logo</a></div>
         <!--ul class="right hide-on-med-and-down">
           <li><a href="sass.html">Sass</a></li>
           <li><a href="badges.html">Components</a></li>
         </ul-->
+        
+          <div class="col s1">
+            <% if (req.session.isAdmin) { %>
+            <a class="btn-floating  waves-effect waves-light red" href="#!" onClick="javascript:newQuestion();"><i class="material-icons" style="line-height:40px">add</i></a>
+            <% } %>
+          </div>
         </div>
       </div>
     </nav>
   </div>
-        
+         
 
     <%- body %>
 
@@ -110,5 +116,11 @@
     <!--SCRIPTS-->
     <script src="/js/dependencies/sails.io.js"></script>
     <!--SCRIPTS END-->
+    <script>
+      $(document).ready(function(){
+        // the "href" attribute of .modal-trigger must specify the modal ID that wants to be triggered
+        $('#modal1').modal();
+      });
+    </script>
   </body>
 </html>

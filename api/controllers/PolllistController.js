@@ -6,9 +6,16 @@
  */
 
 module.exports = {
-
+	adminView : function(req, res) {
+		req.session.isAdmin = true;
+        res.redirect("/");
+	},
+	nonAdminView : function(req, res) {
+		req.session.isAdmin = false;
+        res.redirect("/");
+	},
 	view: function(req, res) {
-		Questions.find().populate('options').exec(function(err, results){
+		Questions.find().populate('options').sort('createdAt DESC').exec(function(err, results){
 			if (err) {
 				sails.log.error("error here : " + err);
 			} else {

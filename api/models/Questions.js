@@ -18,6 +18,9 @@ module.exports = {
             type: 'string',
             required: true
         },
+        votes: {
+          type: 'integer'
+        },
         likes: {
         	type: 'integer'
         },

@@ -5,6 +5,18 @@
  * @help        :: See http://sailsjs.org/#!/documentation/concepts/Controllers
  */
 
+function incrementVotes(qid, callback) {
+	Questions.find({"id" : qid}).populate('options').exec(function(err, question){
+		question[0].votes++;
+		Questions.updateOrCreate({"id":qid}, question[0], function(err1, updated){
+			if (err1) {
+				sails.log.error("Error updating question votes : " + err1);
+			} 
+			callback(err, updated[0].votes);	
+		});
+	});
+}
+
 module.exports = {
 
 	update: function(req, res) {
@@ -29,7 +41,9 @@ module.exports = {
 	                    sails.log.error("Error insert update option rank " + err1);
 	                     res.send({'updated' : false});
 	                } else {
-	                    res.send({'updated' : true});
+	                	incrementVotes(qid, function(err2, votes){
+	                		res.send({'updated' : true, votes: votes});
+	                	});
 	                };
 	                
 	            });
